@@ -63,7 +63,7 @@ function Register (){
         <br /><br />
         <button onClick={manejarRegistro}>Registrarse</button>
         <br /><br />
-        <span>¿Ya tienes cuenta? <Link to="/Login">¡Inicia sesión aquí!</Link></span>
+        <span>¿Ya tienes cuenta? <Link to="/login">¡Inicia sesión aquí!</Link></span>
         </div>
     );
 

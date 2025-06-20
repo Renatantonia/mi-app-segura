@@ -5,7 +5,6 @@ function Notes() {
   const [titulo, setTitulo] = useState('');
   const [notas, setNotas] = useState([]);
 
-  // Cargar notas al montar componente
     useEffect(() => {
         fetch('http://localhost:3001/api/notes')
         .then(res => res.json())
@@ -39,7 +38,6 @@ function Notes() {
         })
             .then(res => {
             if (!res.ok) throw new Error('Error al eliminar');
-            // Si fue exitoso, actualiza la lista local
             setNotas(prev => prev.filter(n => n.id !== id));
             })
             .catch(err => console.error(err));
