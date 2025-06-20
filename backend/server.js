@@ -108,6 +108,34 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Faltan datos' });
+  }
+
+  const users = loadUsers();
+
+  const user = users.find(u => u.username === username);
+  if (!user) {
+    return res.status(401).json({ message: 'Usuario no encontrado' });
+  }
+
+  try {
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(401).json({ message: 'Contraseña incorrecta' });
+    }
+
+    res.json({ message: 'Login exitoso', user: { id: user.id, username: user.username } });
+
+  } catch (err) {
+    console.error('Error en login:', err);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 app.listen(3001, () => {
   console.log('Servidor backend en http://localhost:3001');
 });

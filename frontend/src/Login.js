@@ -8,12 +8,30 @@ function Login() {
     const [mostrar, setMostrar] = useState(false);
     const navigate = useNavigate();
 
-    const manejarClick = () => {
-        navigate('/notes');
+    const manejarLogin = () => {
+        fetch('http://localhost:3001/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: usuario, password: contrasena }),
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.message === 'Login exitoso') {
+                alert('Bienvenido ' + data.user.username);
+                navigate('/notes');
+                } else {
+                alert(data.message);
+                }
+            })
+            .catch(err => {
+                console.error('Error en login:', err);
+                alert('Error al conectar con el servidor');
+            });
     };
 
+
     const manejarCheckbox = (e) => {
-        setMostrar(e.target.checked); // true si está tildado
+        setMostrar(e.target.checked); 
     };
 
     return (
@@ -36,7 +54,7 @@ function Login() {
             <input type="checkbox" checked={mostrar} onChange={manejarCheckbox} />
         </label>
         <br /><br />
-        <button onClick={manejarClick}>Iniciar Sesión</button>
+        <button onClick={manejarLogin }>Iniciar Sesión</button>
         <br /><br />
         <span>¿No tienes cuenta? <Link to="/register">¡Regístrate aquí!</Link></span>
         </div>
