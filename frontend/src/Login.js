@@ -17,6 +17,7 @@ function Login() {
             .then(res => res.json())
             .then(data => {
                 if (data.message === 'Login exitoso') {
+                localStorage.setItem('usuario', data.user.username);
                 alert('Bienvenido ' + data.user.username);
                 navigate('/notes');
                 } else {

@@ -1,17 +1,12 @@
 [
   {
-    "id": 1750396812269,
-    "username": "Juanito",
-    "password": "$2b$10$80NMJnNrSmgXObooz4EQXe8uidMlolfye92RQUb4JbNE20YQmuKp2"
-  },
-  {
-    "id": 1750398447605,
-    "username": "Diego",
-    "password": "$2b$10$i/KafcdskzJRj0aIhRU6MuKTYocM37.KCKxqzECb65lLw1ZulH3Pe"
-  },
-  {
-    "id": 1750398559780,
+    "id": 1750442809144,
     "username": "Renata",
-    "password": "$2b$10$hX1ktzzTpY3951HF8aYuDORe07zTswORckRQR5UOnSMhtZ/fRsnyq"
+    "password": "$2b$10$0n/LaR8M4ZMjfOEqDXyInenMno/LdL933cVR2xmHtFuG9Zt2zb67W"
+  },
+  {
+    "id": 1750443458601,
+    "username": "Diego",
+    "password": "$2b$10$amXVgBaVk.mouJsTs9hzE.BYQBHjJlzRtJj//o5TjGuRzerc5q876"
   }
 ]

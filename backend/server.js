@@ -23,12 +23,19 @@ function saveNotes(notes) {
 }
 
 app.get('/api/notes', (req, res) => {
+  const {user} = req.query;
+
+  if(!user){
+    return res.status(400).json({message: 'Falta el Usuario'})
+  }
+
   const notes = loadNotes();
-  res.json(notes);
+  const userNotes = notes.filter(n => n.user === user);
+  res.json(userNotes);
 });
 
 app.post('/api/notes', (req, res) => {
-  const { title, content } = req.body;
+  const { title, content, user } = req.body;
   if (!title || !content) {
     return res.status(400).json({ message: 'Faltan datos' });
   }
@@ -39,6 +46,7 @@ app.post('/api/notes', (req, res) => {
     id: Date.now(),
     title,
     content,
+    user,
   };
 
   notes.push(nuevaNota);
