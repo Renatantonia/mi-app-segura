@@ -1,149 +1,133 @@
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
-const app = express();
-const bcrypt = require('bcrypt'); 
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
+require('dotenv').config();
 
-app.use(cors());
+const app = express();
+const JWT_SECRET = process.env.JWT_SECRET || 'clave_secreta_super_segura';
+const PORT = process.env.PORT || 3001;
+
+app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
 
 const NOTES_FILE = 'notes.json';
 const USERS_FILE = 'users.json';
 
-function loadNotes() {
-  if (fs.existsSync(NOTES_FILE)) {
-    const data = fs.readFileSync(NOTES_FILE);
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+app.use(limiter);
+
+function loadFile(file) {
+  if (fs.existsSync(file)) {
+    const data = fs.readFileSync(file);
     return JSON.parse(data);
   }
   return [];
 }
 
-function saveNotes(notes) {
-  fs.writeFileSync(NOTES_FILE, JSON.stringify(notes, null, 2));
+function saveFile(file, data) {
+  fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
 
-app.get('/api/notes', (req, res) => {
-  const {user} = req.query;
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
-  if(!user){
-    return res.status(400).json({message: 'Falta el Usuario'})
-  }
+  if (!token) return res.status(401).json({ message: 'Token requerido' });
 
-  const notes = loadNotes();
-  const userNotes = notes.filter(n => n.user === user);
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ message: 'Token inválido' });
+    req.user = user;
+    next();
+  });
+}
+
+app.get('/api/notes', authenticateToken, (req, res) => {
+  const notes = loadFile(NOTES_FILE);
+  const userNotes = notes.filter(n => n.user === req.user.username);
   res.json(userNotes);
 });
 
-app.post('/api/notes', (req, res) => {
-  const { title, content, user } = req.body;
-  if (!title || !content) {
-    return res.status(400).json({ message: 'Faltan datos' });
-  }
+app.post('/api/notes', authenticateToken, (req, res) => {
+  const { title, content } = req.body;
+  if (!title || !content) return res.status(400).json({ message: 'Faltan datos' });
 
-  const notes = loadNotes();
-
+  const notes = loadFile(NOTES_FILE);
   const nuevaNota = {
     id: Date.now(),
     title,
     content,
-    user,
+    user: req.user.username,
   };
 
   notes.push(nuevaNota);
-  saveNotes(notes);
-
+  saveFile(NOTES_FILE, notes);
   res.json({ message: 'Nota guardada', nota: nuevaNota });
 });
 
-// DELETE NOTAS
-app.delete('/api/notes/:id', (req, res) => {
-  const id = Number(req.params.id); // convertimos id a número
-  let notas = loadNotes();
-
-  const nuevasNotas = notas.filter(nota => nota.id !== id);
+app.delete('/api/notes/:id', authenticateToken, (req, res) => {
+  const id = Number(req.params.id);
+  let notas = loadFile(NOTES_FILE);
+  const nuevasNotas = notas.filter(nota => nota.id !== id || nota.user !== req.user.username);
 
   if (nuevasNotas.length === notas.length) {
-    return res.status(404).json({ message: 'Nota no encontrada' });
+    return res.status(404).json({ message: 'Nota no encontrada o no autorizada' });
   }
 
-  saveNotes(nuevasNotas);
+  saveFile(NOTES_FILE, nuevasNotas);
   res.json({ message: 'Nota eliminada' });
 });
 
-
-function loadUsers() {
-  if (fs.existsSync(USERS_FILE)) {
-    const data = fs.readFileSync(USERS_FILE);
-    return JSON.parse(data);
-  }
-  return [];
-} 
-
-function saveUsers(users) {
-  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
-}
-
-
 app.post('/api/register', async (req, res) => {
   const { username, password } = req.body;
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Faltan datos' });
-  }
+  if (!username || !password) return res.status(400).json({ message: 'Faltan datos' });
 
-  const users = loadUsers();
-
-  if (users.find(u => u.username === username)) {
-    return res.status(400).json({ message: 'Usuario ya existe' });
-  }
-
+  const users = loadFile(USERS_FILE);
+  if (users.find(u => u.username === username)) return res.status(400).json({ message: 'Usuario ya existe' });
 
   try {
-    
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = {
-      id: Date.now(),
-      username,
-      password: hashedPassword, 
-    };
-
+    const newUser = { id: Date.now(), username, password: hashedPassword };
     users.push(newUser);
-    saveUsers(users);
-
+    saveFile(USERS_FILE, users);
     res.json({ message: 'Usuario registrado', user: { id: newUser.id, username: newUser.username } });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: 'Error al registrar usuario' });
   }
 });
 
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ message: 'Faltan datos' });
 
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Rellene todos los datos' });
-  }
-
-  const users = loadUsers();
-
+  const users = loadFile(USERS_FILE);
   const user = users.find(u => u.username === username);
-  if (!user) {
-    return res.status(401).json({ message: 'Usuario no encontrado' });
-  }
+  if (!user) return res.status(401).json({ message: 'Usuario no encontrado' });
 
   try {
     const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      return res.status(401).json({ message: 'Contraseña incorrecta' });
-    }
+    if (!match) return res.status(401).json({ message: 'Contraseña incorrecta' });
 
-    res.json({ message: 'Login exitoso', user: { id: user.id, username: user.username } });
-
-  } catch (err) {
-    console.error('Error en login:', err);
+    const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
+    res.json({ 
+        message: 'Login exitoso', 
+        token,
+        user: { username: user.username }
+    });
+  } catch {
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
 
-app.listen(3001, () => {
-  console.log('Servidor backend en http://localhost:3001');
+app.get('/api/healthcheck', (req, res) => {
+  res.status(200).json({ status: 'OK' });
+});
+
+app.listen(PORT, () => {
+  console.log(`Servidor backend en http://localhost:${PORT}`);
 });
