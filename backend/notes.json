@@ -4,5 +4,11 @@
     "title": "Mi primera nota",
     "content": "hola como estas",
     "user": "Diego"
+  },
+  {
+    "id": 1750454443283,
+    "title": "Nota Mental",
+    "content": "Sigue",
+    "user": "Diego"
   }
 ]
