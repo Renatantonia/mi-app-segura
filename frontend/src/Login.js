@@ -36,7 +36,7 @@ function Login() {
     };
 
     return (
-        <div>
+        <div className = "container">
         <h2>Login</h2>
         <input
             type="text"
@@ -51,11 +51,18 @@ function Login() {
             value={contrasena}
             onChange={(e) => setContrasena(e.target.value)}
         />
-        <label>
-            <input type="checkbox" checked={mostrar} onChange={manejarCheckbox} />
-        </label>
+        <div className="checkbox-container">
+            <input
+                type="checkbox"
+                checked={mostrar}
+                onChange={manejarCheckbox}
+                id="mostrarPass"
+            />
+            <label htmlFor="mostrarPass">Mostrar contraseña</label>
+        </div>
+
         <br /><br />
-        <button onClick={manejarLogin }>Iniciar Sesión</button>
+        <button class="login-btn" onClick={manejarLogin }>Iniciar Sesión</button>
         <br /><br />
         <span>¿No tienes cuenta? <Link to="/register">¡Regístrate aquí!</Link></span>
         </div>

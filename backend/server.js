@@ -120,7 +120,7 @@ app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    return res.status(400).json({ message: 'Faltan datos' });
+    return res.status(400).json({ message: 'Rellene todos los datos' });
   }
 
   const users = loadUsers();

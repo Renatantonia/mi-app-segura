@@ -3,6 +3,7 @@ import Login from './Login';
 import Notes from './Notes';
 import Register from './Register';
 import RutaPrivada from './RutaPrivada';
+import './index.css';
 
 function App() {
   return (

@@ -42,7 +42,7 @@ function Register (){
 
 
     return (
-        <div>
+        <div className='container'>
         <h2>Registro</h2>
         <input
             type="text"
@@ -57,11 +57,17 @@ function Register (){
             value={contrasena}
             onChange={(e) => setContrasena(e.target.value)}
         />
-        <label>
-            <input type="checkbox" checked={mostrar} onChange={manejarCheckbox} />
-        </label>
+        <div className="checkbox-container">
+            <input
+                type="checkbox"
+                checked={mostrar}
+                onChange={manejarCheckbox}
+                id="mostrarPass"
+            />
+            <label htmlFor="mostrarPass">Mostrar contraseña</label>
+        </div>
         <br /><br />
-        <button onClick={manejarRegistro}>Registrarse</button>
+        <button class="login-btn" onClick={manejarRegistro}>Registrarse</button>
         <br /><br />
         <span>¿Ya tienes cuenta? <Link to="/login">¡Inicia sesión aquí!</Link></span>
         </div>

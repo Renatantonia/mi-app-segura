@@ -67,7 +67,7 @@ function Notes() {
       <h2>Bienvenido a Notas</h2>
 
       {/* Contenedor scroll horizontal */}
-      <div
+      <div className='notes-scroll'
         style={{
           display: 'flex',
           overflowX: 'auto',
@@ -79,7 +79,7 @@ function Notes() {
         }}
       >
         {notas.map((n) => (
-          <div
+          <div 
             key={n.id}
             style={{
               minWidth: '250px',
@@ -96,14 +96,15 @@ function Notes() {
           </div>
         ))}
       </div>
-
-      <input
-        type="text"
-        placeholder="Título"
-        value={titulo}
-        onChange={e => setTitulo(e.target.value)}
-        style={{ width: '300px', marginBottom: '10px' }}
-      />
+      <div className='note-box'>
+        <input
+            type="text"
+            placeholder="Título"
+            value={titulo}
+            onChange={e => setTitulo(e.target.value)}
+            style={{ width: '300px', marginBottom: '10px' }}
+        />
+       
       <br />
 
       <textarea
@@ -115,6 +116,7 @@ function Notes() {
       />
       <br /><br />
       <button onClick={guardarNota}>Crear Nota</button>
+      </div> 
         <br /><br />
       <button onClick={cerrarSesion}>Cerrar Sesión</button>
     </div>
