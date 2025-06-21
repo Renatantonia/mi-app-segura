@@ -1,14 +1,14 @@
 [
   {
-    "id": 1750444023008,
-    "title": "Mi primera nota",
-    "content": "hola como estas",
-    "user": "Diego"
-  },
-  {
     "id": 1750454443283,
     "title": "Nota Mental",
     "content": "Sigue",
     "user": "Diego"
+  },
+  {
+    "id": 1750525843585,
+    "title": "Hola",
+    "content": "1",
+    "user": "Reni"
   }
 ]
