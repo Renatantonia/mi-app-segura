@@ -1,0 +1,44 @@
+name: Pipeline DevSecOps
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  seguridad:
+    name: Análisis de Seguridad (CodeQL)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Inicializar CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: javascript
+
+      - name: Ejecutar análisis CodeQL
+        uses: github/codeql-action/analyze@v2
+
+  construir:
+    name: Build Docker
+    runs-on: ubuntu-latest
+    needs: seguridad
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Construir Backend
+        run: docker build -t miapp-backend ./backend
+
+      - name: Construir Frontend
+        run: docker build -t miapp-frontend ./frontend
+
+      - name: Probar Frontend
+        run: |
+          docker run -d -p 3000:3000 --name frontend miapp-frontend
+          sleep 10
+          curl -f http://localhost:3000 || (docker logs frontend && exit 1)
+          docker stop frontend && docker rm frontend
