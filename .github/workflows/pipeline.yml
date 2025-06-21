@@ -21,13 +21,13 @@ jobs:
 
       # 1. CodeQL (Análisis estático)
       - name: Inicializar CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: javascript
           queries: security-and-quality
 
       - name: Ejecutar CodeQL
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
 
       # 2. npm audit (Auditoría NPM)
       - name: Auditoría NPM
