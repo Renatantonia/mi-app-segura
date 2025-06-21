@@ -17,11 +17,12 @@ function Login() {
             .then(res => res.json())
             .then(data => {
                 if (data.message === 'Login exitoso') {
-                localStorage.setItem('usuario', data.user.username);
-                alert('Bienvenido ' + data.user.username);
-                navigate('/notes');
+                    localStorage.setItem('usuario', data.user.username);
+                    localStorage.setItem('token', data.token);
+                    alert('Bienvenido ' + data.user.username);
+                    navigate('/notes');
                 } else {
-                alert(data.message);
+                    alert(data.message);
                 }
             })
             .catch(err => {
@@ -62,7 +63,13 @@ function Login() {
         </div>
 
         <br /><br />
-        <button class="login-btn" onClick={manejarLogin }>Iniciar Sesión</button>
+        <button 
+            type="button"
+            className="login-btn" 
+            onClick={manejarLogin }
+        > 
+            Iniciar Sesión
+        </button>
         <br /><br />
         <span>¿No tienes cuenta? <Link to="/register">¡Regístrate aquí!</Link></span>
         </div>
