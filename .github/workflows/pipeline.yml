@@ -52,13 +52,13 @@ jobs:
 
       # 2. Escaneo con Trivy (¡Nuevo!)
       - name: Escanear imágenes con Trivy
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'miapp-backend,miapp-frontend'
-          format: 'table'
-          severity: 'HIGH,CRITICAL'
-          exit-code: '0'  # No falla el pipeline si encuentra vulnerabilidades
-          output: 'trivy-results.txt'
+        run: |
+          for image in miapp-backend miapp-frontend; do
+            trivy image --format table --severity HIGH,CRITICAL $image > trivy-results-$image.txt || true
+          done
+
+      - name: Combinar reportes Trivy
+        run: cat trivy-results-miapp-backend.txt trivy-results-miapp-frontend.txt > trivy-results.txt
 
       - name: Subir reporte de Trivy
         uses: actions/upload-artifact@v4
